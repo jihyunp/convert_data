@@ -1,3 +1,10 @@
+"""
+* Original Data Information
+  Webpage: http://www.cs.cornell.edu/people/pabo/movie-review-data/
+  Downloaded from : http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz
+
+"""
+
 from scipy import io
 from scipy.sparse import csc_matrix, lil_matrix, coo_matrix, find
 import numpy as np
@@ -7,8 +14,6 @@ import gzip
 import re
 import urllib
 import tarfile
-
-
 
 class SmallImdb():
 
