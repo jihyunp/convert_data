@@ -254,12 +254,23 @@ def print_vocab(vocab_array, output_file='rcv1.vocab'):
     output_vocab_file.close()
 
 
+def print_topics(categories, output_file='rcv1.topics'):
+
+    id2cat = categories[0]
+    id2desc = categories[4]
+
+    print('Printing topic (category) information')
+    outfile = open(output_file, 'w')
+    id = 0
+    for cat, desc in zip(id2cat, id2desc):
+        outfile.write('{}\t{}\t{}\n'.format(id, cat, desc))
+    outfile.close()
+
 
 def save_and_print_data(train_data, test_data, vocab, output_folder='./rcv1-v2_imdb_format'):
 
     # from copy import copy
     import cPickle as cp
-
 
     train_folder = os.path.join(output_folder, 'train')
     test_folder = os.path.join(output_folder, 'test')
@@ -363,7 +374,7 @@ if __name__ == "__main__":
 
     save_and_print_data(train_data, test_data, vocab, output_folder=output_dir)
     print_text_file(train_raw, test_raw, output_dir)
-
+    print_topics(new_categories, output_file=output_dir + '/rcv1.topics')
 
 
 
