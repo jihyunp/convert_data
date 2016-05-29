@@ -15,45 +15,33 @@ import re
 import urllib
 import tarfile
 
-class SmallImdb():
 
-    def __init__(self, orig_data_dir='./imdb_2k_orig', output_dir='./imdb_2k', shuffle=True, random_seed=1234):
+from ProcessData import ProcessData
+from ProcessData import _split_data
+
+class SmallImdbData(ProcessData):
+
+    def __init__(self, orig_data_dir, output_dir, train_valid_split=(8, 2), sup_unsup_split=(1, 2),
+                 train_test_split=(8, 2), shuffle=True, random_seed=1234):
         '''
 
         Parameters
         ----------
-        orig_data_dir: directory where the dataset is going to be downloaded and unpacked
-        output_dir: output directory that will be created
-        shuffle: shuffle the indices or not
+        orig_data_dir
+        output_dir
+        train_valid_split
+        sup_unsup_split
+        train_test_split
+        shuffle
         random_seed
-
         '''
 
-        self.orig_data_dir = orig_data_dir
-        self.output_dir = output_dir
-        self.shuf = shuffle
-        self.random_seed = random_seed
-
-        if self.shuf:
-            self.shuffled_idx = None
-
-        self.pos_x = None
-        self.pos_y = None
-        self.neg_x = None
-        self.neg_y = None
-
-        self.raw_text = None
-
-        self.docids = None
-        self.fold_numbers = None
-
-        self.data_y = None
-        self.data_x = None
-
-        self.vocab = None
+        ProcessData.__init__(self, orig_data_dir, output_dir, train_valid_split, sup_unsup_split, train_test_split, shuffle, random_seed)
+        self.binary = True
 
 
-    def download_and_uncompress(self, url):
+
+    def _download_and_uncompress(self, url):
         '''
         Called by get_raw_data()
 
@@ -97,7 +85,7 @@ class SmallImdb():
             os.makedirs(self.orig_data_dir)
 
         url = 'http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz'
-        self.download_and_uncompress(url)
+        self._download_and_uncompress(url)
 
         neg_txt_dir = os.path.join(self.orig_data_dir, 'txt_sentoken', 'neg')
         pos_txt_dir = os.path.join(self.orig_data_dir, 'txt_sentoken', 'pos')
@@ -176,36 +164,21 @@ class SmallImdb():
             self.shuffled_idx = shuffled_idx
             self.raw_text = [self.raw_text[i] for i in shuffled_idx]
 
-        self.data_x = new_bow
+        self.train_x, self.test_x = _split_data(new_bow,  self.train_test_split)
+        self.train_y, self.test_y = _split_data(self.data_y, self.train_test_split)
+        self.train_docids, self.test_docids = _split_data(self.docids, self.train_test_split)
+        self.train_raw_text, self.test_raw_text= _split_data(self.raw_text, self.train_test_split)
+        self.train_sup_x, self.unsup_x = _split_data(self.train_x, self.sup_unsup_split)
+        self.train_sup_y, self.unsup_y = _split_data(self.train_y, self.sup_unsup_split)
+        self.train_sup_docids, self.unsup_docids = _split_data(self.train_docids, self.sup_unsup_split)
+        self.train_sup_raw_text, self.unsup_raw_text= _split_data(self.train_raw_text, self.sup_unsup_split)
+        self.train_sup_x, self.valid_x = _split_data(self.train_sup_x, self.train_valid_split)
+        self.train_sup_y, self.valid_y = _split_data(self.train_sup_y, self.train_valid_split)
+        self.train_sup_docids, self.valid_docids = _split_data(self.train_sup_docids, self.train_valid_split)
+        self.train_sup_raw_text, self.valid_raw_text= _split_data(self.train_sup_raw_text, self.train_valid_split)
+
         self.vocab = new_vocab
 
-
-    def print_svmlight_format(self, x_data, y_data, bow_txt_file):
-
-        print('Printing BOW ..')
-        f = open(bow_txt_file, 'w')
-        for i, catid in enumerate(y_data):
-            if catid == 0:
-                lab = '-1'
-            else:
-                lab = '1'
-            f.write('{}'.format(lab))
-            bow = find(x_data[i, :])
-            for num, wid in zip(bow[2], bow[1]):
-                num = int(num)
-                f.write(' {}:{}'.format(wid, num))
-            f.write('\n')
-        f.close()
-
-
-    def print_vocab(self, output_file='imdb_2k.vocab'):
-
-        print('Printing vocabulary ')
-        # Sort in descending order
-        output_vocab_file = open(output_file, 'w')
-        for word in self.vocab:
-            output_vocab_file.write(word + '\n')
-        output_vocab_file.close()
 
 
     def print_ids_foldnums(self):
@@ -222,51 +195,29 @@ class SmallImdb():
         f2.close()
 
 
-
-    def save_and_print_data(self):
-
-        # from copy import copy
-        import cPickle as cp
-
-        if not os.path.isdir(self.output_dir):
-            os.makedirs(self.output_dir)
-
-        bow_file = os.path.join(self.output_dir, 'labeledBow.feat')
-        cp_file = os.path.join(self.output_dir, 'dataset.pkl')
-
-        dataset = (self.data_x, self.data_y)
-        print('Saving X matrix and label array to dataset.pkl ..')
-        cp.dump(dataset, open(cp_file,'wb'), protocol=cp.HIGHEST_PROTOCOL)
-
-        self.print_svmlight_format(self.data_x, self.data_y, bow_file)
-
-        # Printing vocabulary
-        self.print_vocab(self.output_dir + '/imdb_2k.vocab')
-
-
-
-    def print_text_file(self, output_folder='./imdb_2k'):
-        '''
-        This is for running https://github.com/hiyijian/doc2vec
-
-        Parameters
-        ----------
-        output_folder
-
-        Returns
-        -------
-
-        '''
-
-        print('Printing text file in doc2v')
-        # Now printing text
-        text_output_file = os.path.join(output_folder, 'text.txt')
-        outfile = open(text_output_file, 'w')
-        for did, text in zip(self.docids, self.raw_text):
-            line = '_*' + str(did) + ' ' + text + '\n'
-            outfile.write(line.encode("utf-8"))
-        outfile.close()
-
+    #
+    # def print_text_file(self, output_folder='./imdb_2k'):
+    #     '''
+    #     This is for running https://github.com/hiyijian/doc2vec
+    #
+    #     Parameters
+    #     ----------
+    #     output_folder
+    #
+    #     Returns
+    #     -------
+    #
+    #     '''
+    #
+    #     print('Printing text file in doc2v')
+    #     # Now printing text
+    #     text_output_file = os.path.join(output_folder, 'text.txt')
+    #     outfile = open(text_output_file, 'w')
+    #     for did, text in zip(self.docids, self.raw_text):
+    #         line = '_*' + str(did) + ' ' + text + '\n'
+    #         outfile.write(line.encode("utf-8"))
+    #     outfile.close()
+    #
 
 
 
@@ -274,7 +225,7 @@ class SmallImdb():
 if __name__ == "__main__":
 
 
-    obj = SmallImdb(orig_data_dir='./imdb_2k_orig', output_dir='./imdb_2k', )
+    obj = SmallImdbData(orig_data_dir='./imdb_2k_orig', output_dir='./imdb_2k', )
     obj.get_raw_data()
     obj.get_matrices()
     obj.save_and_print_data()
