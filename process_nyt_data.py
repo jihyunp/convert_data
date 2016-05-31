@@ -1,8 +1,10 @@
 """
 Convert NYT data into aclImdb data format
+Used taxons as categories. Originally had more than 1000 taxons, but reduced to 5 categories.
+
 """
 from scipy import io
-from scipy.sparse import csc_matrix, lil_matrix, coo_matrix, find
+from scipy.sparse import csc_matrix, lil_matrix, find
 import numpy as np
 import os
 from datetime import datetime
@@ -365,13 +367,10 @@ if __name__ == '__main__':
     """
     train_test_split = 0
 
-
     data_folder = '.'
     mat_data = os.path.join(data_folder, 'NewYorkTimes.mat')
     print('Loading the .mat data ..')
     data = io.loadmat(mat_data)
-    # vocab, concept, taxon
-    # docword, docconcept, doctaxon
 
     taxon = data['taxon']
     doctaxon = csc_matrix(data['doctaxon'], dtype=np.int32)

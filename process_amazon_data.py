@@ -138,26 +138,7 @@ class AmazonData(ProcessData):
 
 
     def get_matrices(self):
-        '''
-        Get BOW matrices and y arrays for train_sup/valid/train_unsup/test data.
-        Shuffle the matrices if needed.
-        Split the training data into train_sup and valid.
-        Sort the vocabularies in the order of frequency.
 
-        Returns
-        -------
-        Don't have to return, just make sure you assign the variables below.
-
-        self.train_sup_x
-        self.train_sup_y
-        self.valid_x
-        self.valid_y
-        self.unsup_x
-        self.test_x
-        self.test_y
-        self.vocab
-
-        '''
         print('Generating BOW matrix')
         from sklearn.feature_extraction.text import CountVectorizer
         from nltk.corpus import stopwords

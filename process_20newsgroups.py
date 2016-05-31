@@ -1,26 +1,13 @@
 
-
-from scipy import io
-from scipy.sparse import csc_matrix, lil_matrix, coo_matrix, find
 import numpy as np
-import os
-from datetime import datetime
-import gzip
 import re
-import urllib
-import tarfile
-from process_imdb_2k import SmallImdbData
-
-
 from sklearn.datasets import fetch_20newsgroups
-from sklearn.feature_extraction.text import CountVectorizer
 
 from ProcessData import ProcessData
 from ProcessData import _split_data
 
 
 class NewsGroupsData(ProcessData):
-
 
     def __init__(self, output_dir, categories, train_valid_split=(8, 2), sup_unsup_split=(10, 300),
                  train_test_split=(8, 2), shuffle=False, random_seed=1234):
@@ -145,18 +132,6 @@ class NewsGroupsData(ProcessData):
         self.train_sup_x, self.valid_x = _split_data(self.train_x, self.train_valid_split)
         self.train_sup_y, self.valid_y = _split_data(self.train_y, self.train_valid_split)
 
-        # if self.shuf:
-        #     import random
-        #     shuffled_idx = range(new_bow.shape[0])
-        #     random.seed(self.random_seed)
-        #     random.shuffle(shuffled_idx)
-        #     new_bow = new_bow[shuffled_idx, :]
-        #     self.data_y = self.data_y[shuffled_idx]
-        #     self.docids = self.docids[shuffled_idx]
-        #     self.fold_numbers = self.fold_numbers[shuffled_idx]
-        #     self.shuffled_idx = shuffled_idx
-        #     self.raw_text = [self.raw_text[i] for i in shuffled_idx]
-
 
 
 
@@ -169,28 +144,28 @@ if __name__ == "__main__":
     sixgroups.get_raw_data()
     sixgroups.get_matrices()
     sixgroups.save_and_print_data()
-    # sixgroups.print_text_file()
+    sixgroups.print_text_file()
 
     categories = ['alt.atheism', 'soc.religion.christian']
     bin1 = NewsGroupsData(output_dir='./20newsgroups_bin1', categories=categories)
     bin1.get_raw_data()
     bin1.get_matrices()
     bin1.save_and_print_data()
-    # bin1.print_text_file()
+    bin1.print_text_file()
 
     categories = ['comp.windows.x', 'comp.graphics']
     bin2 = NewsGroupsData(output_dir='./20newsgroups_bin2', categories=categories)
     bin2.get_raw_data()
     bin2.get_matrices()
     bin2.save_and_print_data()
-    # bin2.print_text_file()
+    bin2.print_text_file()
 
     categories = ['rec.sport.baseball', 'sci.crypt']
     bin3 = NewsGroupsData(output_dir='./20newsgroups_bin3', categories=categories)
     bin3.get_raw_data()
     bin3.get_matrices()
     bin3.save_and_print_data()
-    # bin3.print_text_file()
+    bin3.print_text_file()
 
 
 

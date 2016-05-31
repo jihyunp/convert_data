@@ -5,16 +5,11 @@
 
 """
 
-from scipy import io
-from scipy.sparse import csc_matrix, lil_matrix, coo_matrix, find
 import numpy as np
 import os
-from datetime import datetime
-import gzip
 import re
 import urllib
 import tarfile
-
 
 from ProcessData import ProcessData
 from ProcessData import _split_data
@@ -42,17 +37,7 @@ class SmallImdbData(ProcessData):
 
 
     def _download_and_uncompress(self, url):
-        '''
-        Called by get_raw_data()
 
-        Parameters
-        ----------
-        url
-
-        Returns
-        -------
-
-        '''
         file_name = url.split('/')[-1]
         file_path = os.path.join(self.orig_data_dir, file_name)
 
@@ -70,17 +55,6 @@ class SmallImdbData(ProcessData):
 
     def get_raw_data(self):
 
-        """
-
-        Parameters
-        ----------
-        data_dir : folder path where the data should be downloaded/unpacked
-               ex) '/home/datalab/data/imdb_2k
-
-        Returns
-        -------
-
-        """
         if not os.path.isdir(self.orig_data_dir):
             os.makedirs(self.orig_data_dir)
 
@@ -195,35 +169,9 @@ class SmallImdbData(ProcessData):
         f2.close()
 
 
-    #
-    # def print_text_file(self, output_folder='./imdb_2k'):
-    #     '''
-    #     This is for running https://github.com/hiyijian/doc2vec
-    #
-    #     Parameters
-    #     ----------
-    #     output_folder
-    #
-    #     Returns
-    #     -------
-    #
-    #     '''
-    #
-    #     print('Printing text file in doc2v')
-    #     # Now printing text
-    #     text_output_file = os.path.join(output_folder, 'text.txt')
-    #     outfile = open(text_output_file, 'w')
-    #     for did, text in zip(self.docids, self.raw_text):
-    #         line = '_*' + str(did) + ' ' + text + '\n'
-    #         outfile.write(line.encode("utf-8"))
-    #     outfile.close()
-    #
-
-
 
 
 if __name__ == "__main__":
-
 
     obj = SmallImdbData(orig_data_dir='./imdb_2k_orig', output_dir='./imdb_2k', )
     obj.get_raw_data()

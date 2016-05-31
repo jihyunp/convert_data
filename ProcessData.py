@@ -169,21 +169,9 @@ class ProcessData():
         self.unsup_x = new_bow_unsup
         self.vocab = new_vocab
 
-        self.train_sup_x, self.valid_x = _split_data(self.train_x, split=self.split)
-        self.train_sup_y, self.valid_y = _split_data(self.train_y, split=self.split)
-        self.train_sup_docids, self.valid_docids = _split_data(self.train_docids, split=self.split)
-
-        # if self.shuf:
-        #     import random
-        #     shuffled_idx = range(new_bow.shape[0])
-        #     random.seed(self.random_seed)
-        #     random.shuffle(shuffled_idx)
-        #     new_bow = new_bow[shuffled_idx, :]
-        #     self.data_y = self.data_y[shuffled_idx]
-        #     self.docids = self.docids[shuffled_idx]
-        #     self.fold_numbers = self.fold_numbers[shuffled_idx]
-        #     self.shuffled_idx = shuffled_idx
-        #     self.raw_text = [self.raw_text[i] for i in shuffled_idx]
+        self.train_sup_x, self.valid_x = _split_data(self.train_x, split=self.train_valid_split)
+        self.train_sup_y, self.valid_y = _split_data(self.train_y, split=self.train_valid_split)
+        self.train_sup_docids, self.valid_docids = _split_data(self.train_docids, split=self.train_valid_split)
 
 
 
@@ -252,19 +240,9 @@ class ProcessData():
         # Printing vocabulary
         self.print_vocab(self.output_dir + '/vocab')
 
+
     def _print_text(self, text_data, doc_ids, output_file):
-        '''
 
-        Parameters
-        ----------
-        text_data
-        doc_ids
-        output_file
-
-        Returns
-        -------
-
-        '''
         outfile = open(output_file, 'w')
         for did, text in zip(doc_ids, text_data):
             line = '_*' + str(did) + ' ' + text + '\n'

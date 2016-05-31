@@ -1,14 +1,7 @@
 
-
-
-from scipy import io
-from scipy.sparse import csc_matrix, lil_matrix, coo_matrix, find
 import numpy as np
 import os
-from datetime import datetime
-import gzip
 import re
-import urllib
 
 from ProcessData import ProcessData
 from ProcessData import _split_data
@@ -35,32 +28,8 @@ class ReutersData(ProcessData):
         self.topic_new_data = None
 
 
-    #
-    # def download_and_uncompress(self, url):
-    #     file_name = url.split('/')[-1]
-    #     file_path = os.path.join(self.orig_data_dir, file_name)
-    #
-    #     if not os.path.isfile(file_path):
-    #         print("Downloading " + file_name + " from " + url + " ...")
-    #         urllib.urlretrieve(url, file_path)
-    #
-    #     if file_name.split('.')[-1] == 'gz':
-    #         print("Un-compressing data " + file_name)
-    #         zip = gzip.open(file_path, 'rb')
-    #         content = zip.read()
-    #     else:
-    #         f = open(file_path, 'r')
-    #         content = f.read()
-    #     return content
-
 
     def get_raw_data(self):
-        '''
-
-        Returns
-        -------
-
-        '''
 
         unsup_url = 'http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/a12-token-files/lyrl2004_tokens_test_pt0.dat.gz'
         test_urls = ['http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/a12-token-files/lyrl2004_tokens_test_pt1.dat.gz']
@@ -77,7 +46,6 @@ class ReutersData(ProcessData):
         # specifies which Topic categories each RCV1-v2 document belongs to.
         topic_doc_url = 'http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/a08-topic-qrels/rcv1-v2.topics.qrels.gz'
 
-        import urllib
         if not os.path.isdir(self.orig_data_dir):
             os.makedirs(self.orig_data_dir)
 
@@ -163,16 +131,7 @@ class ReutersData(ProcessData):
 
 
     def map_parent_categories(self):
-        '''
 
-        Parameters
-        ----------
-        topic_raw
-            (old_id2cat, old_cat2id, old_did2cid, topic_child2parent, old_topic_desc)
-        Returns
-        -------
-
-        '''
         print('Mapping child to parent categories (topics).. Generating new set of \'topic_raw\'')
         old_id2cat, old_cat2id, old_did2cid, topic_child2parent, old_topic_desc = self.topic_raw_data
 
@@ -210,24 +169,9 @@ class ReutersData(ProcessData):
 
         self.topic_new_data = (new_id2cat, new_cat2id, new_did2tid, topic_child2parent, new_topic_desc)
 
-    def get_matrices(self): #train_raw, test_raw, topic_raw, sup_unsup_ratio=(1, 30)):
-        '''
 
-        Parameters
-        ----------
-        train_raw : Tup( List[str], List[int] )
+    def get_matrices(self):
 
-        test_raw : Tup( List[str], List[int] )
-
-        topic_raw  : (list[str], dict[str:int], dict[int:int], dict[str:str], dict[str:str])
-                (tid2topic, topic2tid, did2tid, topic_child2parent, topic_desc)
-
-
-        Returns
-        -------
-        bow and corresponding doc x category matrix
-
-        '''
         print('Generating BOW matrices for train/test set')
         from sklearn.feature_extraction.text import CountVectorizer
 
@@ -266,7 +210,6 @@ class ReutersData(ProcessData):
         self.train_sup_y, self.valid_y = _split_data(self.train_y, self.train_valid_split)
         self.train_sup_docids, self.valid_docids = _split_data(self.train_docids, self.train_valid_split)
 
-        # return ((train_bow, train_y, train_did), (test_bow, test_y, test_did), new_vocab)
 
 
     def print_topics(self, output_file):
@@ -284,14 +227,13 @@ class ReutersData(ProcessData):
 
 
 
-
-
 if __name__ == "__main__":
-   obj = ReutersData('./rcv1-v2_orig', './rcv1-v2')
-   obj.get_raw_data()
-   obj.map_parent_categories()
-   obj.get_matrices()
-   obj.save_and_print_data()
-   obj.print_topics(obj.output_dir + '/rcv1.topics')
-   obj.print_text_file()
+
+    obj = ReutersData('./rcv1-v2_orig', './rcv1-v2')
+    obj.get_raw_data()
+    obj.map_parent_categories()
+    obj.get_matrices()
+    obj.save_and_print_data()
+    obj.print_topics(obj.output_dir + '/rcv1.topics')
+    obj.print_text_file()
 
