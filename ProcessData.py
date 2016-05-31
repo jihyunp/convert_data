@@ -79,16 +79,7 @@ class ProcessData():
         self.vocab = None
 
         self.binary = False
-        # self.categories = categories
-        # self.all_categories = ['alt.atheism', 'comp.graphics', 'comp.os.ms-windows.misc', 'comp.sys.ibm.pc.hardware',
-        #                        'comp.sys.mac.hardware', 'comp.windows.x', 'misc.forsale', 'rec.autos', 'rec.motorcycles',
-        #                        'rec.sport.baseball', 'rec.sport.hockey', 'sci.crypt', 'sci.electronics', 'sci.med',
-        #                        'sci.space', 'soc.religion.christian', 'talk.politics.guns', 'talk.politics.mideast',
-        #                        'talk.politics.misc', 'talk.religion.misc']
-        #
-        # self.binary=False
-        # if len(categories) == 2:
-        #     self.binary=True
+
 
 
 
